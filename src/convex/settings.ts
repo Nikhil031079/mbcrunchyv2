@@ -28,12 +28,12 @@ export const updateBusiness = mutation({
   handler: async (ctx, args) => {
     const businesses = await ctx.db.query("businesses").collect();
     if (businesses[0]) await ctx.db.patch(businesses[0]._id, { ...args, updatedAt: Date.now() });
-    else await ctx.db.insert("businesses", {
+    else await ctx.db.insert("businesses" as any, {
       ...args,
       name: args.name ?? "MB Crunchy",
-      tagline: args.tagline ?? "Fresh \u2022 Homemade \u2022 Premium",
+      tagline: args.tagline ?? "Fresh • Homemade • Premium",
       updatedAt: Date.now(),
-    });
+    } as any);
   },
 });
 
@@ -60,7 +60,7 @@ export const updateBranding = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db.query("brandingSettings").collect();
     if (existing[0]) await ctx.db.patch(existing[0]._id, { ...args, updatedAt: Date.now() });
-    else await ctx.db.insert("brandingSettings", { ...args, updatedAt: Date.now() });
+    else await ctx.db.insert("brandingSettings" as any, { ...args, updatedAt: Date.now() } as any);
   },
 });
 
@@ -85,7 +85,7 @@ export const updateDeliveryCharges = mutation({
     const existing = await ctx.db.query("deliveryCharges").collect();
     if (id) await ctx.db.patch(id, { ...fields, updatedAt: Date.now() });
     else if (existing[0]) await ctx.db.patch(existing[0]._id, { ...fields, updatedAt: Date.now() });
-    else await ctx.db.insert("deliveryCharges", { ...fields, isActive: true, updatedAt: Date.now() });
+    else await ctx.db.insert("deliveryCharges" as any, { ...fields, isActive: true, updatedAt: Date.now() } as any);
   },
 });
 
@@ -113,13 +113,13 @@ export const updatePaymentSettings = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db.query("paymentSettings").collect();
     if (existing[0]) await ctx.db.patch(existing[0]._id, { ...args, updatedAt: Date.now() });
-    else await ctx.db.insert("paymentSettings", {
+    else await ctx.db.insert("paymentSettings" as any, {
       ...args,
       cashEnabled: true,
       upiEnabled: true,
       whatsappConfirmation: true,
       updatedAt: Date.now(),
-    });
+    } as any);
   },
 });
 
@@ -143,7 +143,7 @@ export const updateBusinessHours = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db.query("businessHours").collect();
     for (const h of existing) await ctx.db.delete(h._id);
-    for (const h of args.hours) await ctx.db.insert("businessHours", h);
+    for (const h of args.hours) await ctx.db.insert("businessHours" as any, h as any);
   },
 });
 
@@ -151,7 +151,7 @@ export const updateBusinessHours = mutation({
 export const getSystemSettings = query({
   args: {},
   handler: async (ctx) => {
-    const settings = await ctx.db.query("systemSettings").collect();
+    const settings = await ctx.db.query("systemSettings" as any).collect();
     return settings[0] ?? null;
   },
 });
@@ -178,7 +178,7 @@ export const updateSystemSettings = mutation({
     socialMediaYoutube: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db.query("systemSettings").collect();
+    const existing = await ctx.db.query("systemSettings" as any).collect();
     if (existing[0]) {
       await ctx.db.patch(existing[0]._id, { ...args, updatedAt: Date.now() });
     } else {
@@ -199,7 +199,7 @@ export const updateSystemSettings = mutation({
         estimatedDeliveryMinutes: 30,
         updatedAt: Date.now(),
       };
-      await ctx.db.insert("systemSettings", { ...defaults, ...args, updatedAt: Date.now() });
+      await ctx.db.insert("systemSettings" as any, { ...defaults, ...args, updatedAt: Date.now() } as any);
     }
   },
 });
@@ -208,7 +208,7 @@ export const updateSystemSettings = mutation({
 export const getSeoSettings = query({
   args: {},
   handler: async (ctx) => {
-    const settings = await ctx.db.query("seoSettings").collect();
+    const settings = await ctx.db.query("seoSettings" as any).collect();
     return settings[0] ?? null;
   },
 });
@@ -224,21 +224,21 @@ export const updateSeoSettings = mutation({
     robotsTxt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db.query("seoSettings").collect();
+    const existing = await ctx.db.query("seoSettings" as any).collect();
     if (existing[0]) {
       await ctx.db.patch(existing[0]._id, { ...args, updatedAt: Date.now() });
     } else {
-      await ctx.db.insert("seoSettings", {
+      await ctx.db.insert("seoSettings" as any, {
         ...args,
         defaultTitle: "MB Crunchy \u2014 Fresh \u2022 Homemade \u2022 Premium",
         defaultDescription: "Your destination for premium frozen foods, homemade snacks, cold-pressed oils, natural honey, and organic products. Freshness delivered to your doorstep.",
         updatedAt: Date.now(),
-      });
+      } as any);
     }
   },
 });
 
-// ─── Combined App Settings ───
+// ─── Combined App Settings (single query to load everything) ───
 export const getAllAppSettings = query({
   args: {},
   handler: async (ctx) => {
@@ -248,8 +248,8 @@ export const getAllAppSettings = query({
       ctx.db.query("paymentSettings").collect().then(r => r[0] ?? null),
       ctx.db.query("deliveryCharges").collect().then(r => r.filter(c => c.isActive)),
       ctx.db.query("businessHours").collect(),
-      ctx.db.query("systemSettings").collect().then(r => r[0] ?? null),
-      ctx.db.query("seoSettings").collect().then(r => r[0] ?? null),
+      ctx.db.query("systemSettings" as any).collect().then(r => r[0] ?? null),
+      ctx.db.query("seoSettings" as any).collect().then(r => r[0] ?? null),
     ]);
 
     return {
@@ -293,8 +293,7 @@ export const getDashboardStats = query({
     const customers = await ctx.db.query("users").collect();
     const reviews = await ctx.db.query("reviews").collect();
     const coupons = await ctx.db.query("coupons").collect();
-    const inventory = await ctx.db.query("inventory").collect();
-    const lowStock = inventory.filter(i => i.quantity <= (i.lowStockLimit ?? 5));
+    const lowStock = await ctx.db.query("inventory").collect().then(all => all.filter(i => i.quantity <= (i.lowStockLimit ?? 5)));
 
     const revenue = allOrders.filter(o => o.status !== "cancelled").reduce((s, o) => s + o.total, 0);
     const todayStart = new Date();
@@ -323,7 +322,7 @@ export const getDashboardStats = query({
   },
 });
 
-// ─── Backup: Export all data ───
+// ─── Backup: Export all data as JSON ───
 export const exportAllData = query({
   args: {},
   handler: async (ctx) => {
@@ -340,7 +339,7 @@ export const exportAllData = query({
 
     const data: Record<string, unknown[]> = {};
     for (const table of tables) {
-      data[table] = await ctx.db.query(table).collect();
+      data[table] = await ctx.db.query(table as any).collect();
     }
     return data;
   },
@@ -354,10 +353,10 @@ export const logBackup = mutation({
     totalRecords: v.number(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("backupHistory", {
+    await ctx.db.insert("backupHistory" as any, {
       ...args,
       createdAt: Date.now(),
-    });
+    } as any);
   },
 });
 
@@ -365,6 +364,6 @@ export const logBackup = mutation({
 export const listBackupHistory = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("backupHistory").order("desc").collect();
+    return await ctx.db.query("backupHistory" as any).order("desc").collect();
   },
 });

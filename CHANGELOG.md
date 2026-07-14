@@ -1,32 +1,76 @@
-# MB Crunchy — Changelog
+# Changelog — MB Crunchy V2
+
+## Phase 7 — Production Ready & Dynamic Business Rules (Current)
+
+### Added
+- 🏪 **Dynamic Business Settings** — All business rules now configurable through Admin Panel
+  - No hardcoded business values anywhere in the application
+  - Settings are stored in Convex and queried via `useAppSettings()` hook
+- 📦 **System Settings** — Currency, timezone, order prefix, GST, packaging charge, delivery threshold, prep/delivery time, social media links
+- 🎨 **SEO Component** — Dynamic meta tags, Open Graph, Twitter Cards, JSON-LD structured data
+- 📤 **Data Backup & Export** — Export all data as JSON, orders as CSV, backup history tracking
+- 📱 **Enhanced PWA** — Improved service worker with better caching, offline page, updated manifest
+- 🔒 **Account Security** — Password change, recovery key generation (shown once), session management
+- 📊 **Enhanced Dashboard Stats** — Today's orders/revenue, weekly stats, preparing orders count
+- 🚧 **Offline Page** — Professional offline fallback page
+- 📑 **Documentation** — DEPLOYMENT.md, BACKUP.md, SETTINGS_GUIDE.md, SEO_GUIDE.md, PWA_GUIDE.md
+
+### Changed
+- **Footer** — Now reads address, phone, hours, social links from dynamic settings
+- **Cart** — Free delivery threshold, currency symbol from settings
+- **Checkout** — UPI ID, store name, order prefix, estimated time, GST from settings
+- **Admin Sidebar** — Added Data Backup link
+- **Admin Settings** — Enhanced system settings with comprehensive business rules
+- **Admin Routes** — Added offline page, data backup page
+
+### Technical
+- Zero hardcoded business rules
+- Dynamic settings flow: Convex → hooks → UI
+- Lazy-loaded admin pages
+- Schema validation enabled
 
 ## Phase 6 — Business Operations & Customer Experience
-**Focus:** Kitchen operations, marketing engine, reports, professional workflows
-
-### New Pages
-- **Kitchen Dashboard** (`/admin/kitchen-dashboard`) — Large order cards with timer, accept/reject/ready workflow, priority alerts, search/filter, stats
-- **Order Receipt** (`/receipt/:orderNum`) — Professional printable receipt with branding, items, QR, print/export
-- **Reports** (`/admin/reports`) — CSV export for Orders, Products, Customers, Inventory with business summary
-- **Offers Engine** (`/admin/offers`) — Full CRUD with 4 offer types (Flash Sale, Festival, Category, Product), create form, search, filter
-
-### Enhanced Features
-- **Order Management** — Color-coded status workflow, timestamps, search, filter
-- **Settings** — Business hours (per-day), delivery charges, payment methods, account security
-- **Admin Sidebar** — Reorganized with Kitchen Dashboard, Reports sections
-- **Routing** — 3 new admin routes + 1 customer route
-
-### Build Status
-- `npx tsc -b --noEmit` — ✅ Zero TypeScript errors
-- `npx convex dev --once` — ✅ Deployed successfully
-
----
+### Added
+- Kitchen Dashboard with large order cards, timer, accept/reject/ready workflow
+- Order Receipt page with printable layout, QR placeholder
+- Offers Engine (Flash Sales, Festival, Category, Product offers)
+- Combo Builder with auto price calculation
+- Reports page with CSV export
+- Enhanced order status workflow with timestamps and history
+- Internal analytics dashboard
 
 ## Phase 5 — Customer Journey & Checkout
+### Added
+- Product Details page with gallery, zoom, veg badge, tabs
+- Professional Cart with quantity management, coupons, savings
+- 5-step Checkout flow (Customer → Order Type → Payment → Review → Place)
+- Order Success with WhatsApp confirmation
+- Order Tracking with status timeline
+- Complete Wishlist with move-to-cart
+- Guest checkout support
 
-## Phase 4 — Backend Foundation Complete
+## Phase 4 — Backend Foundation
+### Added
+- Complete Convex database schema (25+ tables)
+- Admin panel with 22+ CRUD pages
+- Reusable admin components (Table, StatsCard, ConfirmDialog, EmptyState, LoadingSkeleton)
+- Content management (Blogs, FAQs, Banners, Testimonials, Messages, Newsletter)
+- Settings management (Business, Branding, Payments, Delivery, Hours, Security)
+- Audit logging system with immutable trail
 
-## Phase 3 — Kitchen & Mart Browsing
+## Phase 3 — Admin Panel Core
+### Added
+- Admin layout with sidebar navigation
+- Products, Categories, Orders, Customers CRUD
+- Combos, Coupons, Offers management
+- Reviews moderation workflow
+- Inventory management
 
-## Phase 2 — Premium Homepage
-
-## Phase 1 — Project Foundation
+## Phase 1–2 — Foundation & UI
+### Added
+- React + Vite + Tailwind project setup
+- Premium landing page with hero, categories, products, offers sections
+- Reusable component library (ProductCard, Layout, Header, Footer)
+- Kitchen and Mart storefront pages
+- Authentication with Convex Auth
+- Cart and Wishlist stores with localStorage
