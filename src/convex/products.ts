@@ -51,10 +51,13 @@ export const create = mutation({
     businessType: v.union(v.literal("kitchen"), v.literal("mart")),
     categoryId: v.id("categories"),
     subcategoryId: v.optional(v.id("categories")),
+    brandId: v.optional(v.id("brands")),
     name: v.string(),
     slug: v.string(),
     description: v.optional(v.string()),
     shortDescription: v.optional(v.string()),
+    images: v.optional(v.array(v.string())),
+    gallery: v.optional(v.array(v.string())),
     price: v.number(),
     mrp: v.optional(v.number()),
     discount: v.optional(v.number()),
@@ -68,12 +71,17 @@ export const create = mutation({
     isFeatured: v.optional(v.boolean()),
     isBestSeller: v.optional(v.boolean()),
     isNewArrival: v.optional(v.boolean()),
+    isTrending: v.optional(v.boolean()),
+    isRecommended: v.optional(v.boolean()),
     preparationTime: v.optional(v.number()),
     servingSize: v.optional(v.string()),
     sku: v.optional(v.string()),
     nutrition: v.optional(v.string()),
     ingredients: v.optional(v.string()),
     allergens: v.optional(v.string()),
+    storageInstructions: v.optional(v.string()),
+    shelfLife: v.optional(v.string()),
+    spicyLevel: v.optional(v.union(v.literal("mild"), v.literal("medium"), v.literal("hot"), v.literal("extra-hot"))),
     sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -82,8 +90,6 @@ export const create = mutation({
     const id = await ctx.db.insert("products", {
       ...args,
       inStock: (args.stock ?? 0) > 0,
-      images: [],
-      gallery: [],
       createdBy: user?._id,
       updatedBy: user?._id,
       createdAt: now,
@@ -99,10 +105,13 @@ export const update = mutation({
     businessType: v.optional(v.union(v.literal("kitchen"), v.literal("mart"))),
     categoryId: v.optional(v.id("categories")),
     subcategoryId: v.optional(v.id("categories")),
+    brandId: v.optional(v.id("brands")),
     name: v.optional(v.string()),
     slug: v.optional(v.string()),
     description: v.optional(v.string()),
     shortDescription: v.optional(v.string()),
+    images: v.optional(v.array(v.string())),
+    gallery: v.optional(v.array(v.string())),
     price: v.optional(v.number()),
     mrp: v.optional(v.number()),
     discount: v.optional(v.number()),
@@ -116,18 +125,25 @@ export const update = mutation({
     isFeatured: v.optional(v.boolean()),
     isBestSeller: v.optional(v.boolean()),
     isNewArrival: v.optional(v.boolean()),
+    isTrending: v.optional(v.boolean()),
+    isRecommended: v.optional(v.boolean()),
     preparationTime: v.optional(v.number()),
     servingSize: v.optional(v.string()),
     sku: v.optional(v.string()),
     nutrition: v.optional(v.string()),
     ingredients: v.optional(v.string()),
     allergens: v.optional(v.string()),
+    storageInstructions: v.optional(v.string()),
+    shelfLife: v.optional(v.string()),
+    spicyLevel: v.optional(v.union(v.literal("mild"), v.literal("medium"), v.literal("hot"), v.literal("extra-hot"))),
     sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;
     const user = await getCurrentUser(ctx);
-    await ctx.db.patch(id, { ...fields, updatedBy: user?._id, updatedAt: Date.now() });
+    const patch: any = { ...fields, updatedBy: user?._id, updatedAt: Date.now() };
+    if (fields.stock !== undefined) patch.inStock = fields.stock > 0;
+    await ctx.db.patch(id, patch);
   },
 });
 

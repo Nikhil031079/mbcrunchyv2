@@ -19,8 +19,8 @@ export default function AdminBusinessSettings() {
     try {
       await update(data as any);
       toast.success("Business settings saved");
-    } catch {
-      toast.error("Failed to save business settings");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save business settings");
     }
     setSaving(false);
   };

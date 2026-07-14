@@ -19,8 +19,8 @@ export default function AdminBranding() {
     try {
       await update(data as any);
       toast.success("Branding settings saved");
-    } catch {
-      toast.error("Failed to save");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save");
     }
     setSaving(false);
   };

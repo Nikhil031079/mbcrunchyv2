@@ -1,9 +1,10 @@
-// MB Crunchy — Admin Testimonials Management
+// MB Crunchy — Admin Testimonials Management (with Avatar Upload)
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Plus, Edit, Trash2, Star, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 export default function AdminTestimonials() {
   const testimonials = useQuery(api.content.listTestimonials, {});
@@ -11,7 +12,7 @@ export default function AdminTestimonials() {
   const updateTestimonial = useMutation(api.content.updateTestimonial);
   const remove = useMutation(api.content.removeTestimonial);
   const [modal, setModal] = useState<{ open: boolean; edit?: any }>({ open: false });
-  const [form, setForm] = useState<any>({});
+  const [form, setForm] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -20,20 +21,20 @@ export default function AdminTestimonials() {
     return () => { document.removeEventListener("keydown", handleEsc); document.body.style.overflow = ""; };
   }, [modal.open, saving]);
 
-  const openCreate = () => { setForm({ name: "", city: "", comment: "", rating: 5, status: "active" }); setModal({ open: true }); };
+  const openCreate = () => { setForm({ name: "", city: "", comment: "", rating: 5, avatar: "", status: "active" }); setModal({ open: true }); };
   const openEdit = (t: any) => { setForm(t); setModal({ open: true, edit: t }); };
   const handleSave = async () => {
     if (!form.name || !form.comment) { toast.error("Name and comment required"); return; }
     setSaving(true);
     try {
-      const data = { name: form.name, city: form.city || undefined, comment: form.comment, rating: form.rating || 5, status: form.status };
-      if (modal.edit) { await updateTestimonial({ id: modal.edit._id, ...data } as any); toast.success("Updated successfully"); }
-      else { await createTestimonial(data as any); toast.success("Created successfully"); }
+      const data = { name: form.name, city: form.city || undefined, comment: form.comment, rating: form.rating || 5, avatar: form.avatar || undefined, status: form.status };
+      if (modal.edit) { await updateTestimonial({ id: modal.edit._id, ...data } as any); toast.success("Updated"); }
+      else { await createTestimonial(data as any); toast.success("Created"); }
       setModal({ open: false }); document.body.style.overflow = "";
     } catch (e: any) { toast.error(e.message); }
     setSaving(false);
   };
-  const handleDelete = async (id: string) => { try { await remove({ id: id as any }); toast.success("Deleted successfully"); } catch (e: any) { toast.error(e.message); } };
+  const handleDelete = async (id: string) => { try { await remove({ id: id as any }); toast.success("Deleted"); } catch (e: any) { toast.error(e.message); } };
 
   return (
     <div className="space-y-6">
@@ -49,7 +50,9 @@ export default function AdminTestimonials() {
               <p className="text-sm text-muted-foreground leading-relaxed">"{t.comment}"</p>
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">{t.name.charAt(0)}</div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+                    {t.avatar ? <img src={t.avatar} alt="" className="h-full w-full object-cover" /> : <span className="text-primary text-xs font-bold">{t.name.charAt(0)}</span>}
+                  </div>
                   <div><p className="text-sm font-semibold">{t.name}</p>{t.city && <p className="text-xs text-muted-foreground">{t.city}</p>}</div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -64,23 +67,24 @@ export default function AdminTestimonials() {
       )}
       {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { if (!saving) { setModal({ open: false }); document.body.style.overflow = ""; }}}>
-          <div className="bg-white rounded-2xl shadow-xl border border-border/60 w-full max-w-lg mx-4 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border/60 shrink-0">
+          <div className="bg-white rounded-2xl shadow-xl border border-border/60 w-full max-w-lg mx-4" onClick={e => e.stopPropagation()} style={{ maxHeight: "85vh", overflowY: "auto" }}>
+            <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b border-border/60">
               <h2 className="text-lg font-semibold">{modal.edit ? "Edit" : "Add"} Testimonial</h2>
               <button onClick={() => { setModal({ open: false }); document.body.style.overflow = ""; }} className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
             </div>
-            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+            <div className="p-6 space-y-4">
+              <ImageUpload label="Avatar Photo" value={form.avatar || ""} onChange={(v) => setForm({...form, avatar: typeof v === "string" ? v : v[0] || ""})} multiple={false} maxFiles={1} />
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">Name *</label><input value={form.name || ""} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Customer name" className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" /></div>
-                <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">City</label><input value={form.city || ""} onChange={e => setForm({ ...form, city: e.target.value })} placeholder="City" className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" /></div>
+                <div className="space-y-1.5"><label className="text-[10px] font-semibold uppercase text-muted-foreground">Name *</label><input value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} placeholder="Customer name" className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" /></div>
+                <div className="space-y-1.5"><label className="text-[10px] font-semibold uppercase text-muted-foreground">City</label><input value={form.city || ""} onChange={e => setForm({...form, city: e.target.value})} placeholder="City" className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" /></div>
               </div>
-              <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">Rating</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} type="button" onClick={() => setForm({ ...form, rating: n })}><Star className={`h-6 w-6 ${n <= (form.rating || 5) ? "fill-accent text-accent" : "text-muted-foreground/20"}`} /></button>)}</div></div>
-              <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">Comment *</label><textarea value={form.comment || ""} onChange={e => setForm({ ...form, comment: e.target.value })} placeholder="Customer testimonial" rows={3} className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none" /></div>
-              <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">Status</label><select value={form.status || "active"} onChange={e => setForm({ ...form, status: e.target.value })} className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+              <div className="space-y-1.5"><label className="text-[10px] font-semibold uppercase text-muted-foreground">Rating</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} type="button" onClick={() => setForm({...form, rating: n })}><Star className={`h-6 w-6 ${n <= (form.rating || 5) ? "fill-accent text-accent" : "text-muted-foreground/20"}`} /></button>)}</div></div>
+              <div className="space-y-1.5"><label className="text-[10px] font-semibold uppercase text-muted-foreground">Comment *</label><textarea value={form.comment || ""} onChange={e => setForm({...form, comment: e.target.value})} placeholder="Customer testimonial" rows={3} className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none" /></div>
+              <div className="space-y-1.5"><label className="text-[10px] font-semibold uppercase text-muted-foreground">Status</label><select value={form.status || "active"} onChange={e => setForm({...form, status: e.target.value})} className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
             </div>
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-border/60 shrink-0 bg-white">
+            <div className="sticky bottom-0 bg-white flex items-center justify-end gap-3 p-6 border-t border-border/60">
               <button onClick={() => { setModal({ open: false }); document.body.style.overflow = ""; }} className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50 shadow-sm">{saving && <Loader2 className="h-4 w-4 animate-spin" />}{modal.edit ? "Update" : "Create"}</button>
+              <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50">{saving && <Loader2 className="h-4 w-4 animate-spin" />}{modal.edit ? "Update" : "Create"}</button>
             </div>
           </div>
         </div>

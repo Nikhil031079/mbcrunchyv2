@@ -18,6 +18,7 @@ export const createBlog = mutation({
     slug: v.string(),
     content: v.optional(v.string()),
     excerpt: v.optional(v.string()),
+    image: v.optional(v.string()),
     author: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     status: v.union(v.literal("draft"), v.literal("published")),
@@ -36,6 +37,7 @@ export const updateBlog = mutation({
     slug: v.optional(v.string()),
     content: v.optional(v.string()),
     excerpt: v.optional(v.string()),
+    image: v.optional(v.string()),
     author: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     status: v.optional(v.union(v.literal("draft"), v.literal("published"))),
@@ -111,7 +113,8 @@ export const createBanner = mutation({
 export const updateBanner = mutation({
   args: {
     id: v.id("banners"), title: v.optional(v.string()), subtitle: v.optional(v.string()),
-    link: v.optional(v.string()), sortOrder: v.optional(v.number()), status: v.optional(v.union(v.literal("active"), v.literal("inactive"))),
+    image: v.optional(v.string()), link: v.optional(v.string()),
+    sortOrder: v.optional(v.number()), status: v.optional(v.union(v.literal("active"), v.literal("inactive"))),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;
@@ -135,7 +138,7 @@ export const listTestimonials = query({
 });
 
 export const createTestimonial = mutation({
-  args: { name: v.string(), city: v.optional(v.string()), comment: v.string(), rating: v.number(), status: v.union(v.literal("active"), v.literal("inactive")) },
+  args: { name: v.string(), city: v.optional(v.string()), comment: v.string(), rating: v.number(), avatar: v.optional(v.string()), status: v.union(v.literal("active"), v.literal("inactive")) },
   handler: async (ctx, args) => {
     return await ctx.db.insert("testimonials", { ...args, createdAt: Date.now(), updatedAt: Date.now() });
   },
@@ -144,7 +147,8 @@ export const createTestimonial = mutation({
 export const updateTestimonial = mutation({
   args: {
     id: v.id("testimonials"), name: v.optional(v.string()), city: v.optional(v.string()),
-    comment: v.optional(v.string()), rating: v.optional(v.number()), status: v.optional(v.union(v.literal("active"), v.literal("inactive"))),
+    comment: v.optional(v.string()), rating: v.optional(v.number()), avatar: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("active"), v.literal("inactive"))),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;

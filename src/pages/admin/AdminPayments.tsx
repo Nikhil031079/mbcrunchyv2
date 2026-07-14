@@ -19,8 +19,8 @@ export default function AdminPayments() {
     try {
       await update(data as any);
       toast.success("Payment settings saved");
-    } catch {
-      toast.error("Failed to save");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save payment settings");
     }
     setSaving(false);
   };
