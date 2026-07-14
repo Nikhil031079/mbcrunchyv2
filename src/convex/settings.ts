@@ -48,14 +48,30 @@ export const getBranding = query({
 
 export const updateBranding = mutation({
   args: {
+    storeName: v.optional(v.string()),
+    businessName: v.optional(v.string()),
+    tagline: v.optional(v.string()),
     primaryColor: v.optional(v.string()),
     secondaryColor: v.optional(v.string()),
     accentColor: v.optional(v.string()),
-    storeName: v.optional(v.string()),
-    tagline: v.optional(v.string()),
-    aboutText: v.optional(v.string()),
+    theme: v.optional(v.string()),
+    typography: v.optional(v.string()),
     logo: v.optional(v.string()),
+    logoDark: v.optional(v.string()),
+    logoLight: v.optional(v.string()),
+    footerLogo: v.optional(v.string()),
     favicon: v.optional(v.string()),
+    appIcon: v.optional(v.string()),
+    aboutText: v.optional(v.string()),
+    storeEmail: v.optional(v.string()),
+    storePhone: v.optional(v.string()),
+    storeWhatsapp: v.optional(v.string()),
+    socialFacebook: v.optional(v.string()),
+    socialInstagram: v.optional(v.string()),
+    socialYoutube: v.optional(v.string()),
+    socialTwitter: v.optional(v.string()),
+    website: v.optional(v.string()),
+    copyrightText: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.query("brandingSettings").collect();
