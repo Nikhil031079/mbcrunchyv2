@@ -17,11 +17,13 @@ import type * as coupons from "../coupons.js";
 import type * as customers from "../customers.js";
 import type * as http from "../http.js";
 import type * as inventory from "../inventory.js";
+import type * as offers from "../offers.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
 import type * as security from "../security.js";
 import type * as settings from "../settings.js";
+import type * as test_crud from "../test_crud.js";
 import type * as users from "../users.js";
 
 import type {
@@ -40,11 +42,13 @@ declare const fullApi: ApiFromModules<{
   customers: typeof customers;
   http: typeof http;
   inventory: typeof inventory;
+  offers: typeof offers;
   orders: typeof orders;
   products: typeof products;
   reviews: typeof reviews;
   security: typeof security;
   settings: typeof settings;
+  test_crud: typeof test_crud;
   users: typeof users;
 }>;
 
