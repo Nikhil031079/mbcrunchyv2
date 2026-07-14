@@ -1,0 +1,153 @@
+/* MB Crunchy — Neobrutalism Minimalism Theme */
+@import "tailwindcss";
+@import "tw-animate-css";
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0rem;
+  --background: #FFFDF8;
+  --foreground: #000000;
+  --card: #FFFFFF;
+  --card-foreground: #000000;
+  --popover: #FFFFFF;
+  --popover-foreground: #000000;
+  --primary: #C62828;
+  --primary-foreground: #FFFFFF;
+  --secondary: #000000;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F5F3EF;
+  --muted-foreground: #6B6B6B;
+  --accent: #F9A825;
+  --accent-foreground: #000000;
+  --destructive: #C62828;
+  --destructive-foreground: #FFFFFF;
+  --border: #000000;
+  --input: #000000;
+  --ring: #C62828;
+  --chart-1: #C62828;
+  --chart-2: #000000;
+  --chart-3: #F9A825;
+  --chart-4: #FFFDF8;
+  --chart-5: #6B6B6B;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #C62828;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F9A825;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: #C62828;
+}
+
+.dark {
+  --background: #1A1A1A;
+  --foreground: #F5F3EF;
+  --card: #2A2A2A;
+  --card-foreground: #F5F3EF;
+  --popover: #2A2A2A;
+  --popover-foreground: #F5F3EF;
+  --primary: #E53935;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F3EF;
+  --secondary-foreground: #1A1A1A;
+  --muted: #333333;
+  --muted-foreground: #AAAAAA;
+  --accent: #F9A825;
+  --accent-foreground: #000000;
+  --destructive: #E53935;
+  --border: #333333;
+  --input: #333333;
+  --ring: #E53935;
+  --sidebar: #2A2A2A;
+  --sidebar-foreground: #F5F3EF;
+  --sidebar-primary: #E53935;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F9A825;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #333333;
+  --sidebar-ring: #E53935;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
+}
+
+/* Neobrutalism style overrides for shadcn components */
+@layer components {
+  .neo-card {
+    @apply border-2 border-black bg-white;
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  .neo-card:hover {
+    box-shadow: 6px 6px 0px #000000;
+  }
+
+  .neo-btn {
+    @apply border-2 border-black font-bold uppercase tracking-wider text-sm;
+    box-shadow: 3px 3px 0px #000000;
+    transition: all 0.1s ease;
+  }
+
+  .neo-btn:active {
+    box-shadow: 0px 0px 0px #000000;
+    transform: translate(3px, 3px);
+  }
+
+  .neo-input {
+    @apply border-2 border-black;
+    box-shadow: 3px 3px 0px #000000;
+  }
+
+  .neo-section-title {
+    @apply text-2xl sm:text-3xl font-black uppercase tracking-tight border-b-2 border-black pb-2;
+  }
+}
