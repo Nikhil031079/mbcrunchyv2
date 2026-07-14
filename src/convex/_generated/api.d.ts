@@ -24,6 +24,7 @@ import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
 import type * as security from "../security.js";
 import type * as settings from "../settings.js";
+import type * as storage from "../storage.js";
 import type * as test_crud from "../test_crud.js";
 import type * as users from "../users.js";
 
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   reviews: typeof reviews;
   security: typeof security;
   settings: typeof settings;
+  storage: typeof storage;
   test_crud: typeof test_crud;
   users: typeof users;
 }>;
