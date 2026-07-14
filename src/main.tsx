@@ -4,10 +4,10 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
 import "./index.css";
 
-// Store Providers — explicit .tsx to avoid resolving to empty .ts barrel files
+// Store Providers — explicit .tsx imports to avoid .ts barrel file ambiguity
 import { CartProvider } from "@/store/cart.tsx";
 import { WishlistProvider } from "@/store/wishlist.tsx";
 import { UserProvider } from "@/store/user.tsx";
@@ -26,12 +26,39 @@ const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Blog = lazy(() => import("./pages/Blog.tsx"));
 const FAQ = lazy(() => import("./pages/FAQ.tsx"));
 const Wishlist = lazy(() => import("./pages/Wishlist.tsx"));
+const Cart = lazy(() => import("./pages/Cart.tsx"));
 const Checkout = lazy(() => import("./pages/Checkout.tsx"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails.tsx"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking.tsx"));
-const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+
+// Admin pages
+const AdminLayout = lazy(() => import("./components/layout/AdminLayout.tsx"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard.tsx"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts.tsx"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories.tsx"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders.tsx"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers.tsx"));
+const AdminCombos = lazy(() => import("./pages/admin/AdminCombos.tsx"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons.tsx"));
+const AdminOffers = lazy(() => import("./pages/admin/AdminOffers.tsx"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews.tsx"));
+const AdminInventory = lazy(() => import("./pages/admin/AdminInventory.tsx"));
+const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs.tsx"));
+const AdminFaqs = lazy(() => import("./pages/admin/AdminFaqs.tsx"));
+const AdminBanners = lazy(() => import("./pages/admin/AdminBanners.tsx"));
+const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials.tsx"));
+const AdminMessages = lazy(() => import("./pages/admin/AdminMessages.tsx"));
+const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter.tsx"));
+const AdminBusinessSettings = lazy(() => import("./pages/admin/AdminBusinessSettings.tsx"));
+const AdminBranding = lazy(() => import("./pages/admin/AdminBranding.tsx"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments.tsx"));
+const AdminDelivery = lazy(() => import("./pages/admin/AdminDelivery.tsx"));
+const AdminBusinessHours = lazy(() => import("./pages/admin/AdminBusinessHours.tsx"));
+const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity.tsx"));
+const AdminAuditLogs = lazy(() => import("./pages/admin/AdminAuditLogs.tsx"));
+const AdminSystemSettings = lazy(() => import("./pages/admin/AdminSystemSettings.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -159,11 +186,41 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/product/:id" element={<ProductDetails />} />
                   <Route path="/order-tracking" element={<OrderTracking />} />
-                  <Route path="/admin" element={<Admin />} />
                 </Route>
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="customers" element={<AdminCustomers />} />
+                  <Route path="combos" element={<AdminCombos />} />
+                  <Route path="coupons" element={<AdminCoupons />} />
+                  <Route path="offers" element={<AdminOffers />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="blogs" element={<AdminBlogs />} />
+                  <Route path="faqs" element={<AdminFaqs />} />
+                  <Route path="banners" element={<AdminBanners />} />
+                  <Route path="testimonials" element={<AdminTestimonials />} />
+                  <Route path="messages" element={<AdminMessages />} />
+                  <Route path="newsletter" element={<AdminNewsletter />} />
+                  <Route path="settings/business" element={<AdminBusinessSettings />} />
+                  <Route path="settings/branding" element={<AdminBranding />} />
+                  <Route path="settings/payments" element={<AdminPayments />} />
+                  <Route path="settings/delivery" element={<AdminDelivery />} />
+                  <Route path="settings/hours" element={<AdminBusinessHours />} />
+                  <Route path="settings/security" element={<AdminSecurity />} />
+                  <Route path="settings/system" element={<AdminSystemSettings />} />
+                  <Route path="audit-logs" element={<AdminAuditLogs />} />
+                </Route>
+
                 <Route path="/auth" element={<AuthPage redirectAfterAuth="/" />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

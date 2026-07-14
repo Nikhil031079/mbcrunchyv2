@@ -5,10 +5,12 @@ import { Link, useLocation } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, Package, Grid3X3, ShoppingBag, UtensilsCrossed,
-  Combine, PartyPopper, ShoppingCart, Users, Star, TicketPercent,
+  LayoutDashboard, Package, Grid3X3,
+  Combine, ShoppingCart, Users, Star, TicketPercent,
   Percent, Box, BookOpen, HelpCircle, MessageSquare, Mail, Image,
-  Settings, Shield, CreditCard, Truck, ClipboardList, LogOut, ChevronLeft, Menu,
+  Settings, Shield, CreditCard, Truck, Clock, ClipboardList,
+  LogOut, ChevronLeft, Menu, UtensilsCrossed, BarChart3, FileText,
+  Receipt, PartyPopper,
 } from "lucide-react";
 
 interface NavItem {
@@ -20,15 +22,18 @@ interface NavItem {
 
 const navSections: { title: string; items: NavItem[] }[] = [
   {
+    title: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+      { label: "Kitchen Dashboard", href: "/admin/kitchen-dashboard", icon: UtensilsCrossed },
+    ],
+  },
+  {
     title: "Management",
     items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       { label: "Products", href: "/admin/products", icon: Package },
       { label: "Categories", href: "/admin/categories", icon: Grid3X3 },
-      { label: "Kitchen", href: "/admin/kitchen", icon: UtensilsCrossed },
-      { label: "Mart", href: "/admin/mart", icon: ShoppingBag },
       { label: "Combos", href: "/admin/combos", icon: Combine },
-      { label: "Party Packs", href: "/admin/party-packs", icon: PartyPopper },
       { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
       { label: "Customers", href: "/admin/customers", icon: Users },
       { label: "Reviews", href: "/admin/reviews", icon: Star },
@@ -44,8 +49,14 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { label: "FAQs", href: "/admin/faqs", icon: HelpCircle },
       { label: "Banners", href: "/admin/banners", icon: Image },
       { label: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
-      { label: "Contact Messages", href: "/admin/messages", icon: Mail },
+      { label: "Messages", href: "/admin/messages", icon: Mail },
       { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
+    ],
+  },
+  {
+    title: "Reports",
+    items: [
+      { label: "Reports", href: "/admin/reports", icon: BarChart3 },
     ],
   },
   {
@@ -58,11 +69,10 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { label: "Hours", href: "/admin/settings/hours", icon: Clock },
       { label: "Security", href: "/admin/settings/security", icon: Shield },
       { label: "Audit Logs", href: "/admin/audit-logs", icon: ClipboardList },
+      { label: "System", href: "/admin/settings/system", icon: Settings },
     ],
   },
 ];
-
-import { Clock } from "lucide-react";
 
 export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -70,7 +80,7 @@ export default function AdminSidebar() {
   const location = useLocation();
 
   const isActive = (href: string) => {
-    if (href === "/admin") return location.pathname === "/admin";
+    if (href === "/admin/dashboard") return location.pathname === "/admin/dashboard" || location.pathname === "/admin";
     return location.pathname.startsWith(href);
   };
 

@@ -30,11 +30,11 @@ export const getByOrderNumber = query({
 
 export const create = mutation({
   args: {
-    customerId: v.id("users"),
-    customerName: v.optional(v.string()),
-    customerPhone: v.optional(v.string()),
+    customerName: v.string(),
+    customerPhone: v.string(),
+    customerEmail: v.optional(v.string()),
     items: v.array(v.object({
-      productId: v.id("products"),
+      productId: v.string(),
       name: v.string(),
       price: v.number(),
       quantity: v.number(),
@@ -44,39 +44,33 @@ export const create = mutation({
     })),
     subtotal: v.number(),
     deliveryFee: v.number(),
+    discount: v.optional(v.number()),
     total: v.number(),
-    paymentMethod: v.union(v.literal("cash"), v.literal("upi"), v.literal("pending")),
+    paymentMethod: v.union(v.literal("cash"), v.literal("upi")),
+    paymentStatus: v.union(v.literal("pending"), v.literal("paid")),
     orderType: v.union(v.literal("delivery"), v.literal("takeaway")),
     deliveryAddress: v.optional(v.string()),
     deliveryCity: v.optional(v.string()),
     deliveryPincode: v.optional(v.string()),
+    upiTransactionId: v.optional(v.string()),
     note: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
     const orderNumber = `MB-${now.toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const orderId = await ctx.db.insert("orders", {
+    // Cast items to satisfy Convex schema (guest products use string IDs)
+    const orderData: any = {
       ...args,
+      items: args.items.map(i => ({ ...i, productId: i.productId as any })),
       orderNumber,
       status: "pending",
-      paymentStatus: "pending",
-      discount: 0,
+      discount: args.discount ?? 0,
       createdAt: now,
       updatedAt: now,
-    });
-    for (const item of args.items) {
-      await ctx.db.insert("orderItems", {
-        orderId,
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        weight: item.weight,
-        veg: item.veg,
-      });
-    }
-    return orderId;
+      customerId: "" as any,
+    };
+    await ctx.db.insert("orders", orderData);
+    return orderNumber;
   },
 });
 

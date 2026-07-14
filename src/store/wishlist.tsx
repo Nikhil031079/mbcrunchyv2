@@ -1,9 +1,9 @@
-// MB Crunchy — Wishlist Store (Prepared for future implementation)
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import type { WishlistItem, WishlistState } from "@/types";
+// MB Crunchy — Wishlist Store (Full Implementation with localStorage)
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import type { WishlistItem } from "@/types";
 
 interface WishlistContextValue {
-  state: WishlistState;
+  items: WishlistItem[];
   addItem: (item: WishlistItem) => void;
   removeItem: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
@@ -14,44 +14,54 @@ interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
-const initialState: WishlistState = {
-  items: [],
-};
+const STORAGE_KEY = "mb-crunchy-wishlist";
+
+function loadWishlist(): WishlistItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [state] = useState<WishlistState>(initialState);
+  const [items, setItems] = useState<WishlistItem[]>(loadWishlist);
 
-  const addItem = useCallback((_item: WishlistItem) => {
-    console.log("[Wishlist] addItem — not implemented yet", _item);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
+
+  const addItem = useCallback((item: WishlistItem) => {
+    setItems(prev => {
+      if (prev.find(i => i.productId === item.productId)) return prev;
+      return [...prev, { ...item, addedAt: Date.now() }];
+    });
   }, []);
 
-  const removeItem = useCallback((_productId: string) => {
-    console.log("[Wishlist] removeItem — not implemented yet", _productId);
+  const removeItem = useCallback((productId: string) => {
+    setItems(prev => prev.filter(i => i.productId !== productId));
   }, []);
 
-  const isInWishlist = useCallback((_productId: string): boolean => {
-    return false;
-  }, []);
+  const isInWishlist = useCallback((productId: string): boolean => {
+    return items.some(i => i.productId === productId);
+  }, [items]);
 
-  const toggleItem = useCallback((_item: WishlistItem) => {
-    console.log("[Wishlist] toggleItem — not implemented yet", _item);
+  const toggleItem = useCallback((item: WishlistItem) => {
+    setItems(prev => {
+      const exists = prev.find(i => i.productId === item.productId);
+      if (exists) return prev.filter(i => i.productId !== item.productId);
+      return [...prev, { ...item, addedAt: Date.now() }];
+    });
   }, []);
 
   const clearWishlist = useCallback(() => {
-    console.log("[Wishlist] clearWishlist — not implemented yet");
+    setItems([]);
   }, []);
 
   const value = useMemo<WishlistContextValue>(
-    () => ({
-      state,
-      addItem,
-      removeItem,
-      isInWishlist,
-      toggleItem,
-      clearWishlist,
-      count: 0,
-    }),
-    [state, addItem, removeItem, isInWishlist, toggleItem, clearWishlist],
+    () => ({ items, addItem, removeItem, isInWishlist, toggleItem, clearWishlist, count: items.length }),
+    [items, addItem, removeItem, isInWishlist, toggleItem, clearWishlist],
   );
 
   return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
