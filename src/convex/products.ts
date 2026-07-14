@@ -158,10 +158,9 @@ export const duplicate = mutation({
     if (!original) throw new Error("Product not found");
     const now = Date.now();
     const user = await getCurrentUser(ctx);
+    const { _id, _creationTime, ...productData } = original;
     return await ctx.db.insert("products", {
-      ...original,
-      _id: undefined,
-      _creationTime: undefined,
+      ...productData,
       name: `${original.name} (Copy)`,
       slug: `${original.slug}-copy-${now}`,
       sku: original.sku ? `${original.sku}-COPY` : undefined,

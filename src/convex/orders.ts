@@ -88,7 +88,7 @@ export const updateStatus = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const timestamps: Record<string, number> = { updatedAt: now };
+    const timestamps: any = { updatedAt: now };
     const statusMap: Record<string, string> = {
       accepted: "acceptedAt", preparing: "preparingAt", ready: "readyAt",
       "out-for-delivery": "outForDeliveryAt", completed: "completedAt", cancelled: "cancelledAt",

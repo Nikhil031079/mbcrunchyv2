@@ -29,7 +29,7 @@ export default function AdminProducts() {
   };
 
   const handleBulkAction = async (status: "active" | "inactive" | "draft") => {
-    await updateStatus({ ids: Array.from(selected), status });
+    await updateStatus({ ids: Array.from(selected) as any, status });
     setSelected(new Set());
   };
 

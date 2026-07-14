@@ -76,7 +76,7 @@ export const updateDeliveryCharges = mutation({
     const existing = await ctx.db.query("deliveryCharges").collect();
     if (id) await ctx.db.patch(id, { ...fields, updatedAt: Date.now() });
     else if (existing[0]) await ctx.db.patch(existing[0]._id, { ...fields, updatedAt: Date.now() });
-    else await ctx.db.insert("deliveryCharges", { ...fields, isActive: true });
+    else await ctx.db.insert("deliveryCharges", { ...fields, isActive: true, updatedAt: Date.now() });
   },
 });
 
