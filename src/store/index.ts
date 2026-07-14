@@ -1,4 +1,4 @@
-export { CartProvider, useCart } from "./cart";
-export { WishlistProvider, useWishlist } from "./wishlist";
-export { UserProvider, useUser } from "./user";
-export { SettingsProvider, useSettings } from "./settings";
+export { CartProvider, useCart } from "./cart.tsx";
+export { WishlistProvider, useWishlist } from "./wishlist.tsx";
+export { UserProvider, useUser } from "./user.tsx";
+export { SettingsProvider, useSettings } from "./settings.tsx";

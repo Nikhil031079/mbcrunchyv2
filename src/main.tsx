@@ -7,11 +7,11 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import "./index.css";
 
-// Store Providers
-import { CartProvider } from "@/store/cart";
-import { WishlistProvider } from "@/store/wishlist";
-import { UserProvider } from "@/store/user";
-import { SettingsProvider } from "@/store/settings";
+// Store Providers — explicit .tsx to avoid resolving to empty .ts barrel files
+import { CartProvider } from "@/store/cart.tsx";
+import { WishlistProvider } from "@/store/wishlist.tsx";
+import { UserProvider } from "@/store/user.tsx";
+import { SettingsProvider } from "@/store/settings.tsx";
 
 // Layout
 import Layout from "@/components/layout/Layout";
@@ -149,7 +149,6 @@ createRoot(document.getElementById("root")!).render(
           <StoreProviders>
             <Suspense fallback={<RouteLoading />}>
               <Routes>
-                {/* Pages with Layout (Header, Footer, Bottom Nav) */}
                 <Route element={<Layout />}>
                   <Route path="/" element={<Landing />} />
                   <Route path="/kitchen" element={<Kitchen />} />
@@ -165,8 +164,6 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="/order-tracking" element={<OrderTracking />} />
                   <Route path="/admin" element={<Admin />} />
                 </Route>
-
-                {/* Auth page without Layout */}
                 <Route path="/auth" element={<AuthPage redirectAfterAuth="/" />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
