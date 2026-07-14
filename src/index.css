@@ -1,13 +1,13 @@
-/* MB Crunchy — Neobrutalism Minimalism Theme */
+/* MB Crunchy V2 — Premium Modern Theme */
 @import "tailwindcss";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: 0rem;
-  --radius-md: 0rem;
-  --radius-lg: 0rem;
-  --radius-xl: 0rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -36,72 +36,72 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
 :root {
-  --radius: 0rem;
+  --radius: 0.625rem;
   --background: #FFFDF8;
-  --foreground: #000000;
+  --foreground: #111111;
   --card: #FFFFFF;
-  --card-foreground: #000000;
+  --card-foreground: #111111;
   --popover: #FFFFFF;
-  --popover-foreground: #000000;
+  --popover-foreground: #111111;
   --primary: #C62828;
   --primary-foreground: #FFFFFF;
-  --secondary: #000000;
+  --secondary: #111111;
   --secondary-foreground: #FFFFFF;
   --muted: #F5F3EF;
   --muted-foreground: #6B6B6B;
   --accent: #F9A825;
-  --accent-foreground: #000000;
+  --accent-foreground: #111111;
   --destructive: #C62828;
   --destructive-foreground: #FFFFFF;
-  --border: #000000;
-  --input: #000000;
+  --border: #E5E3DF;
+  --input: #E5E3DF;
   --ring: #C62828;
   --chart-1: #C62828;
-  --chart-2: #000000;
+  --chart-2: #111111;
   --chart-3: #F9A825;
   --chart-4: #FFFDF8;
   --chart-5: #6B6B6B;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #000000;
+  --sidebar-foreground: #111111;
   --sidebar-primary: #C62828;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F9A825;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: #000000;
+  --sidebar-accent-foreground: #111111;
+  --sidebar-border: #E5E3DF;
   --sidebar-ring: #C62828;
 }
 
 .dark {
-  --background: #1A1A1A;
+  --background: #111111;
   --foreground: #F5F3EF;
-  --card: #2A2A2A;
+  --card: #1A1A1A;
   --card-foreground: #F5F3EF;
-  --popover: #2A2A2A;
+  --popover: #1A1A1A;
   --popover-foreground: #F5F3EF;
   --primary: #E53935;
   --primary-foreground: #FFFFFF;
   --secondary: #F5F3EF;
-  --secondary-foreground: #1A1A1A;
-  --muted: #333333;
-  --muted-foreground: #AAAAAA;
+  --secondary-foreground: #111111;
+  --muted: #222222;
+  --muted-foreground: #999999;
   --accent: #F9A825;
-  --accent-foreground: #000000;
+  --accent-foreground: #111111;
   --destructive: #E53935;
   --border: #333333;
   --input: #333333;
   --ring: #E53935;
-  --sidebar: #2A2A2A;
+  --sidebar: #1A1A1A;
   --sidebar-foreground: #F5F3EF;
   --sidebar-primary: #E53935;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F9A825;
-  --sidebar-accent-foreground: #000000;
+  --sidebar-accent-foreground: #111111;
   --sidebar-border: #333333;
   --sidebar-ring: #E53935;
 }
@@ -111,7 +111,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
   button:not([disabled]),
@@ -120,34 +120,84 @@
   }
 }
 
-/* Neobrutalism style overrides for shadcn components */
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom utilities */
 @layer components {
-  .neo-card {
-    @apply border-2 border-black bg-white;
-    box-shadow: 4px 4px 0px #000000;
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98];
   }
 
-  .neo-card:hover {
-    box-shadow: 6px 6px 0px #000000;
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-transparent px-6 py-3 text-sm font-semibold text-secondary transition-all duration-200 hover:bg-secondary hover:text-secondary-foreground active:scale-[0.98];
   }
 
-  .neo-btn {
-    @apply border-2 border-black font-bold uppercase tracking-wider text-sm;
-    box-shadow: 3px 3px 0px #000000;
-    transition: all 0.1s ease;
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-foreground shadow-sm transition-all duration-200 hover:bg-muted hover:shadow-md active:scale-[0.98];
   }
 
-  .neo-btn:active {
-    box-shadow: 0px 0px 0px #000000;
-    transform: translate(3px, 3px);
+  .card-premium {
+    @apply rounded-2xl bg-white shadow-md transition-all duration-300;
   }
 
-  .neo-input {
-    @apply border-2 border-black;
-    box-shadow: 3px 3px 0px #000000;
+  .card-premium:hover {
+    @apply shadow-xl;
   }
 
-  .neo-section-title {
-    @apply text-2xl sm:text-3xl font-black uppercase tracking-tight border-b-2 border-black pb-2;
+  .section-title {
+    @apply text-2xl font-bold tracking-tight sm:text-3xl;
   }
+
+  .section-subtitle {
+    @apply text-muted-foreground;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(135deg, #111111 0%, #1a1a1a 50%, #C62828 150%);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #F9A825 0%, #F57C00 100%);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #C62828 0%, #E53935 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #F9A825 0%, #C62828 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D0D0D0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A0A0A0;
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
