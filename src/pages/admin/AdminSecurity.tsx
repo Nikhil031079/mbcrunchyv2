@@ -1,44 +1,53 @@
-// MB Crunchy — Admin Account Security
+// MB Crunchy — Admin Account Security (Password-Based Auth)
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Save, Shield, Key, LogOut, Eye, EyeOff, Copy, CheckCircle } from "lucide-react";
+import { Shield, Key, Eye, EyeOff, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { CardSkeleton } from "@/components/admin/LoadingSkeleton";
 import { toast } from "sonner";
 
 export default function AdminSecurity() {
-  const securityInfo = useQuery(api.security.getSecurityInfo);
-  const sessions = useQuery(api.security.listSessions);
-  const recoveryKeys = useQuery(api.security.listRecoveryKeys);
-  const generateKey = useMutation(api.security.generateRecoveryKey);
-  const revokeSession = useMutation(api.security.revokeSession);
-  const changePassword = useMutation(api.security.changePassword);
-  const revokeRecoveryKey = useMutation(api.security.revokeRecoveryKey);
+  const token = localStorage.getItem("admin_session_token") || "";
+  const securityInfo = useQuery(api.admin.getSecurityInfo, { token });
+  const changePassword = useMutation(api.admin.changePassword);
+  const generateKey = useMutation(api.admin.generateRecoveryKey);
+  const clearKeyView = useMutation(api.admin.clearRecoveryKeyView);
 
-  const [passwordForm, setPasswordForm] = useState({ current: "", newPass: "", confirm: "" });
-  const [showPasswords, setShowPasswords] = useState(false);
+  // Password change form
+  const [pwForm, setPwForm] = useState({ current: "", newPass: "", confirm: "" });
+  const [showPw, setShowPw] = useState(false);
+  const [changingPw, setChangingPw] = useState(false);
+
+  // Recovery key
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [changingPassword, setChangingPassword] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const handleChangePassword = async () => {
-    if (passwordForm.newPass.length < 8) { toast.error("Password must be at least 8 characters"); return; }
-    if (passwordForm.newPass !== passwordForm.confirm) { toast.error("Passwords don't match"); return; }
-    setChangingPassword(true);
+    if (pwForm.newPass.length < 8) { toast.error("Min 8 characters"); return; }
+    if (pwForm.newPass !== pwForm.confirm) { toast.error("Passwords don't match"); return; }
+    if (!/[A-Z]/.test(pwForm.newPass)) { toast.error("Need uppercase letter"); return; }
+    if (!/[a-z]/.test(pwForm.newPass)) { toast.error("Need lowercase letter"); return; }
+    if (!/[0-9]/.test(pwForm.newPass)) { toast.error("Need a number"); return; }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwForm.newPass)) { toast.error("Need special character"); return; }
+
+    setChangingPw(true);
     try {
-      await changePassword({ currentPassword: passwordForm.current, newPassword: passwordForm.newPass });
+      await changePassword({ currentPassword: pwForm.current, newPassword: pwForm.newPass, token });
       toast.success("Password changed successfully");
-      setPasswordForm({ current: "", newPass: "", confirm: "" });
-    } catch { toast.error("Failed to change password"); }
-    setChangingPassword(false);
+      setPwForm({ current: "", newPass: "", confirm: "" });
+    } catch (e: any) { toast.error(e.message || "Failed"); }
+    setChangingPw(false);
   };
 
   const handleGenerateKey = async () => {
+    setGenerating(true);
     try {
-      const key = await generateKey();
+      const key = await generateKey({ token });
       setNewKey(key);
-      toast.success("Recovery key generated");
-    } catch { toast.error("Failed to generate key"); }
+      toast.success("Recovery key generated — copy it now!");
+    } catch (e: any) { toast.error(e.message || "Failed"); }
+    setGenerating(false);
   };
 
   const handleCopyKey = () => {
@@ -49,11 +58,9 @@ export default function AdminSecurity() {
     }
   };
 
-  const handleRevokeSession = async (sessionId: any) => {
-    try {
-      await revokeSession({ sessionId });
-      toast.success("Session revoked");
-    } catch { toast.error("Failed to revoke session"); }
+  const handleDismissKey = async () => {
+    setNewKey(null);
+    try { await clearKeyView({ token }); } catch {}
   };
 
   if (!securityInfo) return <CardSkeleton />;
@@ -63,21 +70,26 @@ export default function AdminSecurity() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Account Security</h1>
-          <p className="text-sm text-muted-foreground">Manage your security settings</p>
+          <p className="text-sm text-muted-foreground">Manage password, recovery key, and security settings</p>
         </div>
       </div>
 
-      {/* Security Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="rounded-2xl bg-white border border-border/60 p-4 shadow-sm">
           <Shield className="h-5 w-5 text-emerald-600 mb-2" />
-          <p className="text-2xl font-bold">{securityInfo?.activeSessions ?? 0}</p>
-          <p className="text-xs text-muted-foreground">Active Sessions</p>
+          <p className="text-2xl font-bold">{securityInfo.passwordChangedAt ? "✅" : "⚠️"}</p>
+          <p className="text-xs text-muted-foreground">Password Set</p>
         </div>
         <div className="rounded-2xl bg-white border border-border/60 p-4 shadow-sm">
-          <Key className="h-5 w-5 text-amber-600 mb-2" />
-          <p className="text-2xl font-bold">{securityInfo?.unusedRecoveryKeys ?? 0}</p>
-          <p className="text-xs text-muted-foreground">Unused Keys</p>
+          <Key className={`h-5 w-5 mb-2 ${securityInfo.hasRecoveryKey ? "text-emerald-600" : "text-muted-foreground"}`} />
+          <p className="text-2xl font-bold">{securityInfo.hasRecoveryKey ? "✅" : "—"}</p>
+          <p className="text-xs text-muted-foreground">Recovery Key</p>
+        </div>
+        <div className="rounded-2xl bg-white border border-border/60 p-4 shadow-sm">
+          <Shield className="h-5 w-5 text-amber-600 mb-2" />
+          <p className="text-2xl font-bold">{securityInfo.failedAttempts ?? 0}</p>
+          <p className="text-xs text-muted-foreground">Failed Attempts</p>
         </div>
       </div>
 
@@ -89,111 +101,65 @@ export default function AdminSecurity() {
             <div>
               <label className="text-xs font-semibold uppercase text-muted-foreground">Current Password</label>
               <div className="relative mt-1">
-                <input
-                  type={showPasswords ? "text" : "password"}
-                  value={passwordForm.current}
-                  onChange={e => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                  className="w-full rounded-xl border border-border bg-white px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-                <button onClick={() => setShowPasswords(!showPasswords)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                <input type={showPw ? "text" : "password"} value={pwForm.current}
+                  onChange={e => setPwForm({ ...pwForm, current: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-white px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <div>
               <label className="text-xs font-semibold uppercase text-muted-foreground">New Password</label>
-              <input
-                type={showPasswords ? "text" : "password"}
-                value={passwordForm.newPass}
-                onChange={e => setPasswordForm({ ...passwordForm, newPass: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
+              <input type={showPw ? "text" : "password"} value={pwForm.newPass}
+                onChange={e => setPwForm({ ...pwForm, newPass: e.target.value })}
+                className="mt-1 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
             </div>
             <div>
               <label className="text-xs font-semibold uppercase text-muted-foreground">Confirm New Password</label>
-              <input
-                type={showPasswords ? "text" : "password"}
-                value={passwordForm.confirm}
-                onChange={e => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
+              <input type={showPw ? "text" : "password"} value={pwForm.confirm}
+                onChange={e => setPwForm({ ...pwForm, confirm: e.target.value })}
+                className="mt-1 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
             </div>
-            <button
-              onClick={handleChangePassword}
-              disabled={changingPassword || !passwordForm.current || !passwordForm.newPass}
-              className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50"
-            >
-              {changingPassword ? "Changing..." : "Change Password"}
+            <button onClick={handleChangePassword} disabled={changingPw || !pwForm.current || !pwForm.newPass}
+              className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50">
+              {changingPw ? <><Loader2 className="h-4 w-4 animate-spin inline mr-2" />Changing...</> : "Change Password"}
             </button>
           </div>
         </div>
 
-        {/* Recovery Keys */}
+        {/* Recovery Key */}
         <div className="rounded-2xl bg-white border border-border/60 p-6 shadow-sm">
-          <h2 className="font-semibold mb-4 flex items-center gap-2"><Key className="h-4 w-4 text-primary" /> Recovery Keys</h2>
+          <h2 className="font-semibold mb-4 flex items-center gap-2"><Key className="h-4 w-4 text-primary" /> Recovery Key</h2>
+
           {newKey && (
             <div className="mb-4 rounded-xl border-2 border-amber-200 bg-amber-50 p-4">
               <p className="text-xs font-semibold uppercase text-amber-700 mb-2">⚠ Save this key now — it won't be shown again</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 rounded-lg bg-white border border-amber-200 px-3 py-2 text-sm font-mono font-bold text-amber-900">{newKey}</code>
+                <code className="flex-1 rounded-lg bg-white border border-amber-200 px-3 py-2 text-sm font-mono font-bold text-amber-900 tracking-wider">{newKey}</code>
                 <button onClick={handleCopyKey} className="rounded-lg bg-white border border-amber-200 p-2 hover:bg-amber-100 transition-colors">
                   {copied ? <CheckCircle className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4 text-amber-700" />}
                 </button>
               </div>
+              <button onClick={handleDismissKey} className="mt-2 text-xs text-muted-foreground hover:text-foreground">Dismiss</button>
             </div>
           )}
-          <button onClick={handleGenerateKey} className="w-full rounded-xl border-2 border-dashed border-border py-3 text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors">
-            + Generate New Recovery Key
-          </button>
-          {recoveryKeys && recoveryKeys.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {recoveryKeys.map(key => (
-                <div key={key._id} className="flex items-center justify-between rounded-xl bg-muted/30 px-4 py-2.5">
-                  <div>
-                    <p className="text-sm font-mono">{key.keyPreview}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {key.usedAt ? "Used" : "Active"} • {new Date(key.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  {!key.usedAt && (
-                    <button onClick={() => revokeRecoveryKey({ keyId: key._id })} className="text-xs text-red-600 hover:text-red-700 font-medium">
-                      Revoke
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+
+          {!newKey && (
+            <>
+              <p className="text-xs text-muted-foreground mb-4">
+                {securityInfo.hasRecoveryKey
+                  ? "A recovery key exists. Generate a new one to replace it."
+                  : "Generate a recovery key to reset your password if you forget it."}
+              </p>
+              <button onClick={handleGenerateKey} disabled={generating}
+                className="w-full rounded-xl border-2 border-dashed border-border py-3 text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50">
+                {generating ? <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> : "+ "}
+                {generating ? "Generating..." : securityInfo.hasRecoveryKey ? "Regenerate Recovery Key" : "Generate Recovery Key"}
+              </button>
+            </>
           )}
         </div>
-      </div>
-
-      {/* Active Sessions */}
-      <div className="rounded-2xl bg-white border border-border/60 p-6 shadow-sm">
-        <h2 className="font-semibold mb-4 flex items-center gap-2"><LogOut className="h-4 w-4 text-primary" /> Active Sessions</h2>
-        {sessions && sessions.length > 0 ? (
-          <div className="space-y-2">
-            {sessions.map(session => (
-              <div key={session._id} className="flex items-center justify-between rounded-xl bg-muted/30 px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className={`h-2 w-2 rounded-full ${session.isActive ? "bg-emerald-500" : "bg-red-400"}`} />
-                  <div>
-                    <p className="text-sm font-medium">{session.userAgent ? session.userAgent.substring(0, 50) + "..." : "Unknown device"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {session.ipAddress ?? "No IP"} • {new Date(session.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                {session.isActive && (
-                  <button onClick={() => handleRevokeSession(session._id)} className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition-colors">
-                    Revoke
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground text-center py-4">No active sessions</p>
-        )}
       </div>
     </div>
   );

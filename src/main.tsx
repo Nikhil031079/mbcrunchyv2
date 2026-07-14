@@ -59,6 +59,8 @@ const AdminBusinessHours = lazy(() => import("./pages/admin/AdminBusinessHours.t
 const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity.tsx"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AdminAuditLogs.tsx"));
 const AdminSystemSettings = lazy(() => import("./pages/admin/AdminSystemSettings.tsx"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.tsx"));
+const AdminLogout = lazy(() => import("./pages/admin/AdminLogout.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -192,7 +194,14 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="/order-tracking" element={<OrderTracking />} />
                 </Route>
 
-                {/* Admin Routes */}
+                {/* Auth */}
+                <Route path="/auth" element={<AuthPage redirectAfterAuth="/" />} />
+
+                {/* Admin Login & Logout (no auth guard) */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/logout" element={<AdminLogout />} />
+
+                {/* Admin Routes (auth-guarded by AdminLayout) */}
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<AdminDashboard />} />
@@ -221,7 +230,6 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="audit-logs" element={<AdminAuditLogs />} />
                 </Route>
 
-                <Route path="/auth" element={<AuthPage redirectAfterAuth="/" />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
