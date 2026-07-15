@@ -77,47 +77,6 @@ export default function AdminReviews() {
                 review.status === "hidden" ? "bg-gray-50 text-gray-700" : "bg-amber-50 text-amber-700"
               }`}>{review.status}</span>
             </div>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
-            <div className="mt-3 flex items-center gap-2">
-              {review.status === "pending" && (
-                <>
-                  <button onClick={() => moderate({ id: review._id, status: "approved" })}
-                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors">
-                    <CheckCircle className="h-3 w-3" /> Approve
-                  </button>
-                  <button onClick={() => moderate({ id: review._id, status: "rejected" })}
-                    className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors">
-                    <XCircle className="h-3 w-3" /> Reject
-                  </button>
-                </>
-              )}
-              {review.status === "approved" && (
-                <button onClick={() => moderate({ id: review._id, status: "hidden" })}
-                  className="inline-flex items-center gap-1 rounded-lg bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                  <EyeOff className="h-3 w-3" /> Hide
-                </button>
-              )}
-              {review.status === "hidden" && (
-                <button onClick={() => moderate({ id: review._id, status: "approved" })}
-                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors">
-                  <CheckCircle className="h-3 w-3" /> Restore
-                </button>
-              )}
-              <button onClick={() => moderate({ id: review._id, status: review.status, isPinned: !review.isPinned })}
-                className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${review.isPinned ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-                <Pin className="h-3 w-3" /> {review.isPinned ? "Pinned" : "Pin"}
-              </button>
-              <button onClick={() => remove({ id: review._id })}
-                className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors">
-                <XCircle className="h-3 w-3" /> Delete
-              </button>
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-sm text-muted-foreground">No reviews found.</div>
-        )}
-      </div>
-    </div>
-  );
-}
+            <p className="mt-3 text-sm text-muted-
+
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 3,966 characters. Read it separately or use code_search for the relevant section.
