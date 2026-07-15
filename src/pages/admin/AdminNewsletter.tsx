@@ -51,26 +51,6 @@ export default function AdminNewsletter() {
                         <span className="font-medium">{sub.email}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{new Date(sub.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3">
-                      <span className="rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Subscribed</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button onClick={() => setDeleteId(sub._id)} className="rounded-lg p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                    <td className="px-4 py-3 text-muted-foreground">{new Date(su
 
-      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)}
-        onConfirm={() => { if (deleteId) remove({ id: deleteId as any }); setDeleteId(null); }}
-        title="Remove Subscriber" message="Remove this subscriber from the list?" confirmLabel="Remove" variant="warning" />
-    </div>
-  );
-}
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 2,899 characters. Read it separately or use code_search for the relevant section.

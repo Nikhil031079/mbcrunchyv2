@@ -1,8 +1,9 @@
 // MB Crunchy — Admin FAQs Management
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { toast } from "sonner";
 
 export default function AdminFaqs() {
@@ -13,30 +14,47 @@ export default function AdminFaqs() {
   const remove = useMutation(api.content.removeFaq);
   const [modal, setModal] = useState<{ open: boolean; edit?: any }>({ open: false });
   const [form, setForm] = useState<any>({});
+  const [initialForm, setInitialForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const isFormDirty = useMemo(() => {
+    if (!modal.open) return false;
+    return JSON.stringify(form) !== JSON.stringify(initialForm);
+  }, [form, initialForm, modal.open]);
+
+  const safeClose = () => {
+    if (isFormDirty) { setShowConfirm(true); }
+    else { setModal({ open: false }); document.body.style.overflow = ""; }
+  };
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape" && modal.open && !saving) { setModal({ open: false }); document.body.style.overflow = ""; }};
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && modal.open && !saving) {
+        if (isFormDirty) { setShowConfirm(true); }
+        else { setModal({ open: false }); document.body.style.overflow = ""; }
+      }
+    };
     if (modal.open) { document.addEventListener("keydown", handleEsc); document.body.style.overflow = "hidden"; } else document.body.style.overflow = "";
     return () => { document.removeEventListener("keydown", handleEsc); document.body.style.overflow = ""; };
-  }, [modal.open, saving]);
+  }, [modal.open, saving, isFormDirty]);
 
   const toggle = (id: string) => { const next = new Set(expanded); if (next.has(id)) next.delete(id); else next.add(id); setExpanded(next); };
-  const openCreate = () => { setForm({ question: "", answer: "", category: "", order: 0, status: "active" }); setModal({ open: true }); };
-  const openEdit = (f: any) => { setForm(f); setModal({ open: true, edit: f }); };
+  const openCreate = () => { const v = { question: "", answer: "", category: "", order: 0, status: "active" }; setForm({...v}); setInitialForm({...v}); setModal({ open: true }); };
+  const openEdit = (f: any) => { setForm({...f}); setInitialForm({...f}); setModal({ open: true, edit: f }); };
 
   const handleSave = async () => {
     if (!form.question || !form.answer) { toast.error("Question and answer are required"); return; }
     setSaving(true);
     try {
       const data = { question: form.question, answer: form.answer, category: form.category || undefined, order: form.order || undefined, status: form.status };
-      if (modal.edit) { await updateFaq({ id: modal.edit._id, ...data } as any); toast.success("FAQ updated successfully"); }
-      else { await createFaq(data as any); toast.success("FAQ created successfully"); }
+      if (modal.edit) { await updateFaq({ id: modal.edit._id, ...data } as any); toast.success("FAQ updated"); }
+      else { await createFaq(data as any); toast.success("FAQ created"); }
       setModal({ open: false }); document.body.style.overflow = "";
     } catch (e: any) { toast.error(e.message); }
     setSaving(false);
   };
-  const handleDelete = async (id: string) => { try { await remove({ id: id as any }); toast.success("Deleted successfully"); } catch (e: any) { toast.error(e.message); } };
+  const handleDelete = async (id: string) => { try { await remove({ id: id as any }); toast.success("Deleted"); } catch (e: any) { toast.error(e.message); } };
 
   return (
     <div className="space-y-6">
@@ -63,11 +81,11 @@ export default function AdminFaqs() {
         {(faqs ?? []).length === 0 && <div className="text-center py-12 text-sm text-muted-foreground">No FAQs yet.</div>}
       </div>
       {modal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { if (!saving) { setModal({ open: false }); document.body.style.overflow = ""; }}}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { if (!saving) safeClose(); }}>
           <div className="bg-white rounded-2xl shadow-xl border border-border/60 w-full max-w-lg mx-4 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-border/60 shrink-0">
               <h2 className="text-lg font-semibold">{modal.edit ? "Edit" : "Add"} FAQ</h2>
-              <button onClick={() => { setModal({ open: false }); document.body.style.overflow = ""; }} className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+              <button onClick={() => safeClose()} className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
             </div>
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="space-y-1.5"><label className="text-xs font-medium text-muted-foreground">Question *</label><input value={form.question || ""} onChange={e => setForm({ ...form, question: e.target.value })} placeholder="Frequently asked question" className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" /></div>
@@ -79,12 +97,13 @@ export default function AdminFaqs() {
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t border-border/60 shrink-0 bg-white">
-              <button onClick={() => { setModal({ open: false }); document.body.style.overflow = ""; }} className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
+              <button onClick={() => safeClose()} className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
               <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50 shadow-sm">{saving && <Loader2 className="h-4 w-4 animate-spin" />}{modal.edit ? "Update" : "Create"}</button>
             </div>
           </div>
         </div>
       )}
+      <ConfirmDialog open={showConfirm} onClose={() => setShowConfirm(false)} onConfirm={() => { setShowConfirm(false); setModal({ open: false }); document.body.style.overflow = ""; }} title="Unsaved Changes" message="You have unsaved changes. Are you sure you want to close?" confirmLabel="Discard Changes" variant="warning" />
     </div>
   );
 }
