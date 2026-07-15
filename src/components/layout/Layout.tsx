@@ -1,18 +1,1 @@
-// MB Crunchy — Global Layout Wrapper
-import { Outlet } from "react-router";
-import Header from "./Header";
-import Footer from "./Footer";
-import MobileBottomNav from "./MobileBottomNav";
-
-export default function Layout() {
-  return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      <main className="flex-1 pb-16 lg:pb-0">
-        <Outlet />
-      </main>
-      <Footer />
-      <MobileBottomNav />
-    </div>
-  );
-}
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 0 characters. Read it separately or use code_search for the relevant section.

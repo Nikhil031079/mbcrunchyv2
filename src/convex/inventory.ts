@@ -63,7 +63,6 @@ export const adjustStock = mutation({
 export const getStockHistory = query({
   args: { productId: v.id("products"), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const history = await ctx.db.query("stockHistory").withIndex("product", q => q.eq("productId", args.productId)).collect();
-    return history.sort((a, b) => b.createdAt - a.createdAt).slice(0, args.limit ?? 20);
-  },
-});
+    const history = await ctx.db.query("stockHistory").withInd
+
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 2,398 characters. Read it separately or use code_search for the relevant section.
