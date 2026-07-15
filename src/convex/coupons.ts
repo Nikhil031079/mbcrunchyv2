@@ -62,9 +62,6 @@ export const validate = query({
     if (!coupon || !coupon.isActive) return { valid: false, reason: "Coupon not found or inactive" };
     if (Date.now() < coupon.validFrom || Date.now() > coupon.validUntil) return { valid: false, reason: "Coupon expired" };
     if (coupon.minOrder && args.subtotal < coupon.minOrder) return { valid: false, reason: `Minimum order ₹${coupon.minOrder}` };
-    if (coupon.usageLimit && (coupon.usedCount ?? 0) >= coupon.usageLimit) return { valid: false, reason: "Usage limit reached" };
-    let discount = coupon.type === "percentage" ? (args.subtotal * coupon.value) / 100 : coupon.value;
-    if (coupon.maxDiscount) discount = Math.min(discount, coupon.maxDiscount);
-    return { valid: true, discount: Math.round(discount), coupon };
-  },
-});
+    if (coupon.usageLimit && (coupon.usedCount ?? 
+
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 2,555 characters. Read it separately or use code_search for the relevant section.
