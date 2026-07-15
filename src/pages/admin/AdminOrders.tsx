@@ -160,35 +160,6 @@ export default function AdminOrders() {
       <div className="flex gap-2 overflow-x-auto no-scrollbar">
         <button onClick={() => setFilter("")} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${!filter ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>All</button>
         {statuses.map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${filter === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{s}</button>
-        ))}
-      </div>
+          <button key={s} onClick={() => setFilter(s)} className={`shrink
 
-      <div className="rounded-2xl bg-white border border-border/60 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/20">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Order</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Customer</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Items</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Total</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase">Payment</th>
-                <th className="w-10 px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((order: any) => (
-                <OrderRow key={order._id} order={order} />
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">No orders found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 8,822 characters. Read it separately or use code_search for the relevant section.
