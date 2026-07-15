@@ -44,7 +44,6 @@ function GroupCard({ group, onEdit, onDelete }: { group: any; onEdit: (g: any) =
   const updateOption = useMutation(api.products_extras.updateModifierOption);
   const removeOption = useMutation(api.products_extras.removeModifierOption);
   const [showNewOption, setShowNewOption] = useState(false);
-
   const optionList = (options ?? []) as any[];
 
   return (
@@ -60,18 +59,13 @@ function GroupCard({ group, onEdit, onDelete }: { group: any; onEdit: (g: any) =
             <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] capitalize">{group.selectionType}</span>
           </div>
           {group.description && <p className="text-xs text-muted-foreground mt-0.5">{group.description}</p>}
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {group.min !== undefined && group.min !== null ? `Min: ${group.min}` : "Min: 0"} | 
-            {group.max !== undefined && group.max !== null ? `Max: ${group.max}` : "No max"}
-          </p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Min: {group.min ?? 0} | Max: {group.max ?? "No max"}</p>
         </div>
         <div className="flex gap-1">
           <button onClick={() => onEdit(group)} className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/5"><Edit3 className="h-3.5 w-3.5" /></button>
           <button onClick={() => onDelete(group._id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5" /></button>
         </div>
       </div>
-
-      {/* Options */}
       <div className="space-y-1 ml-5">
         {optionList.map((opt: any) => (
           <div key={opt._id} className="flex items-center justify-between py-1 px-2 rounded-md hover:bg-muted/30 text-xs">
@@ -100,19 +94,17 @@ function GroupCard({ group, onEdit, onDelete }: { group: any; onEdit: (g: any) =
 
 export default function AdminModifierGroups() {
   const products = useQuery(api.products.list, {});
-  const listModifierGroups = useQuery(api.products_extras.listModifierGroups, { productId: "" as any });
   const createGroup = useMutation(api.products_extras.createModifierGroup);
   const updateGroup = useMutation(api.products_extras.updateModifierGroup);
   const removeGroup = useMutation(api.products_extras.removeModifierGroup);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", description: "", selectionType: "single", min: 0, max: 0, required: false, sortOrder: 0 });
+  const [form, setForm] = useState({ name: "", description: "", selectionType: "", min: 0, max: 0, required: false, sortOrder: 0 });
 
   const productList = (products ?? []).filter((p: any) => p.status === "active" || p.status === "draft");
   const groups = useQuery(api.products_extras.listModifierGroups, selectedProductId ? { productId: selectedProductId as any } : "skip");
 
-  // Reset selected product when products load
   useEffect(() => {
     if (!selectedProductId && productList.length > 0) setSelectedProductId(productList[0]._id);
   }, [productList, selectedProductId]);
@@ -121,19 +113,20 @@ export default function AdminModifierGroups() {
 
   const handleSaveGroup = async () => {
     if (!selectedProductId || !form.name.trim()) { toast.error("Select a product and enter a name"); return; }
+    const data: any = { ...form, productId: selectedProductId as any };
     if (editing) {
-      await updateGroup({ id: editing._id, ...form } as any);
+      await updateGroup({ id: editing._id, ...data });
     } else {
-      await createGroup({ ...form, productId: selectedProductId as any });
+      await createGroup(data);
     }
     setShowForm(false); setEditing(null);
-    setForm({ name: "", description: "", selectionType: "single", min: 0, max: 0, required: false, sortOrder: 0 });
+    setForm({ name: "", description: "", selectionType: "", min: 0, max: 0, required: false, sortOrder: 0 });
     toast.success(editing ? "Group updated!" : "Group created!");
   };
 
   const handleEdit = (g: any) => {
     setEditing(g);
-    setForm({ name: g.name, description: g.description || "", selectionType: g.selectionType, min: g.min ?? 0, max: g.max ?? 0, required: g.required, sortOrder: g.sortOrder ?? 0 });
+    setForm({ name: g.name, description: g.description || "", selectionType: g.selectionType || "single", min: g.min ?? 0, max: g.max ?? 0, required: g.required, sortOrder: g.sortOrder ?? 0 });
     setShowForm(true);
   };
 
@@ -142,8 +135,6 @@ export default function AdminModifierGroups() {
     await removeGroup({ id: id as any });
     toast.success("Group deleted");
   };
-
-  const selectedProduct = productList.find((p: any) => p._id === selectedProductId);
 
   return (
     <div className="space-y-6">
@@ -166,17 +157,15 @@ export default function AdminModifierGroups() {
         </div>
       </div>
 
-      {selectedProduct && (
+      {selectedProductId && (
         <div className="rounded-xl bg-muted/30 border border-border/60 p-3 flex items-center gap-3">
           <Package className="h-5 w-5 text-primary" />
           <div>
-            <p className="text-sm font-semibold">{selectedProduct.name}</p>
-            <p className="text-xs text-muted-foreground capitalize">{selectedProduct.businessType} {selectedProduct.veg ? "• Veg" : "• Non-Veg"}</p>
+            <p className="text-sm font-semibold">{productList.find((p: any) => p._id === selectedProductId)?.name}</p>
           </div>
         </div>
       )}
 
-      {/* New/Edit Group Form */}
       {showForm && (
         <div className="rounded-2xl bg-white border border-border/60 p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
@@ -221,12 +210,16 @@ export default function AdminModifierGroups() {
         </div>
       )}
 
-      {/* Groups List */}
-      {selectedProductId && groupList.length === 0 && !showForm && (
+      {!selectedProductId && (
         <div className="text-center py-16">
           <Layers className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground">Select a product above to manage its modifier groups.</p>
+        </div>
+      )}
+
+      {selectedProductId && groupList.length === 0 && !showForm && (
+        <div className="text-center py-16">
           <p className="text-sm text-muted-foreground">No modifier groups for this product yet.</p>
-          <p className="text-xs text-muted-foreground mt-1">Create modifier groups like Size, Crust, Toppings, etc.</p>
         </div>
       )}
 
