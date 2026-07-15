@@ -5,6 +5,11 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Lock, Eye, EyeOff, Loader2, KeyRound, ArrowLeft, CheckCircle, ShieldAlert } from "lucide-react";
 
+const SPECIAL_CHARS = "!@#$%^&*()_+-=[]{};':\",.<>/?|\\";
+function hasSpecialChar(s: string): boolean {
+  return s.split("").some(c => SPECIAL_CHARS.includes(c));
+}
+
 export default function AdminLogin() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,6 +24,7 @@ export default function AdminLogin() {
   const [showPw, setShowPw] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialCheck, setInitialCheck] = useState(true);
 
   // Forgot password state
   const [recoveryKey, setRecoveryKey] = useState("");
@@ -30,18 +36,44 @@ export default function AdminLogin() {
   const [setupPw, setSetupPw] = useState("");
   const [setupConfirm, setSetupConfirm] = useState("");
 
-  // Check if already logged in (has valid session in localStorage)
+  // Verify any existing session token against Convex
+  const sessionToken = localStorage.getItem("admin_session_token");
+  const sessionExpiry = localStorage.getItem("admin_session_expiry");
+  const verifyResult = useQuery(
+    api.admin.verifySession,
+    sessionToken && !initialCheck ? { token: sessionToken } : "skip"
+  );
+
+  // On mount, clear expired tokens
   useEffect(() => {
-    const token = localStorage.getItem("admin_session_token");
-    if (token && authStatus?.isSetup) {
-      // Redirect will happen if verifySession passes in AdminLayout
-      navigate("/admin/dashboard", { replace: true });
+    if (sessionExpiry && Date.now() > parseInt(sessionExpiry)) {
+      localStorage.removeItem("admin_session_token");
+      localStorage.removeItem("admin_session_expiry");
     }
-    // Auto-redirect to setup if no password configured
+    setInitialCheck(false);
+  }, []);
+
+  // If there's a valid session token, verify it with Convex and redirect
+  useEffect(() => {
+    if (initialCheck) return;
+    if (verifyResult === undefined) return; // still loading
+    if (verifyResult?.valid && authStatus?.isSetup) {
+      navigate("/admin/dashboard", { replace: true });
+      return;
+    }
+    // Session invalid or expired — clean up
+    if (sessionToken) {
+      localStorage.removeItem("admin_session_token");
+      localStorage.removeItem("admin_session_expiry");
+    }
+  }, [verifyResult, authStatus, navigate, sessionToken, initialCheck]);
+
+  // Auto-redirect to setup if no password configured
+  useEffect(() => {
     if (authStatus && !authStatus.isSetup && step !== "setup") {
       setStep("setup");
     }
-  }, [authStatus, navigate, step]);
+  }, [authStatus, step]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +99,7 @@ export default function AdminLogin() {
     if (!/[A-Z]/.test(setupPw)) { setError("Must contain an uppercase letter"); return; }
     if (!/[a-z]/.test(setupPw)) { setError("Must contain a lowercase letter"); return; }
     if (!/[0-9]/.test(setupPw)) { setError("Must contain a number"); return; }
-    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(setupPw)) { setError("Must contain a special character"); return; }
+    if (!hasSpecialChar(setupPw)) { setError("Must contain a special character"); return; }
 
     setIsLoading(true);
     setError(null);
@@ -90,7 +122,7 @@ export default function AdminLogin() {
     if (!/[A-Z]/.test(newPassword)) { setError("Must contain an uppercase letter"); return; }
     if (!/[a-z]/.test(newPassword)) { setError("Must contain a lowercase letter"); return; }
     if (!/[0-9]/.test(newPassword)) { setError("Must contain a number"); return; }
-    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword)) { setError("Must contain a special character"); return; }
+    if (!hasSpecialChar(newPassword)) { setError("Must contain a special character"); return; }
 
     setIsLoading(true);
     setError(null);
@@ -128,6 +160,18 @@ export default function AdminLogin() {
     </div>
   );
 
+  // Show verifying state while checking existing session
+  if (verifyResult === undefined && !initialCheck && sessionToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50">
       <div className="w-full max-w-md px-4">
@@ -143,7 +187,7 @@ export default function AdminLogin() {
         {/* Card */}
         <div className="rounded-2xl bg-white border border-border/60 shadow-xl p-8">
 
-          {/* ─── SETUP STEP ─── */}
+          {/* SETUP STEP */}
           {step === "setup" && (
             <>
               <div className="text-center mb-6">
@@ -178,7 +222,7 @@ export default function AdminLogin() {
             </>
           )}
 
-          {/* ─── LOGIN STEP ─── */}
+          {/* LOGIN STEP */}
           {step === "login" && (
             <>
               <h2 className="text-lg font-semibold mb-1">Admin Login</h2>
@@ -198,7 +242,7 @@ export default function AdminLogin() {
             </>
           )}
 
-          {/* ─── FORGOT PASSWORD STEP ─── */}
+          {/* FORGOT PASSWORD STEP */}
           {step === "forgot" && (
             <>
               {resetSuccess ? (

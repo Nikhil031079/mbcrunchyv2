@@ -133,33 +133,6 @@ function OrderRow({ order }: { order: any }) {
 export default function AdminOrders() {
   const [filter, setFilter] = useState<string>("");
   const [search, setSearch] = useState("");
-  const orders = useQuery(api.orders.list, {});
+  const orders = useQuery(api.orders.list
 
-  const filtered = ((orders ?? []) as any[]).filter((o: any) =>
-    (!filter || o.status === filter) &&
-    (!search || o.orderNumber.toLowerCase().includes(search.toLowerCase()) || o.customerName?.toLowerCase().includes(search.toLowerCase()))
-  );
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
-          <p className="text-sm text-muted-foreground">{filtered.length} orders</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order number or customer..."
-            className="w-full rounded-xl border border-border bg-white py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
-        </div>
-      </div>
-
-      <div className="flex gap-2 overflow-x-auto no-scrollbar">
-        <button onClick={() => setFilter("")} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${!filter ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>All</button>
-        {statuses.map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`shrink
-
-[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 8,822 characters. Read it separately or use code_search for the relevant section.
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 7,304 characters. Read it separately or use code_search for the relevant section.
