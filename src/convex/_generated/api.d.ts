@@ -8,7 +8,7 @@
  * @module
  */
 
-import type * as about from "../about.js";
+import type * as about_page from "../about_page.js";
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
@@ -23,11 +23,13 @@ import type * as media from "../media.js";
 import type * as offers from "../offers.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
+import type * as products_extras from "../products_extras.js";
 import type * as reviews from "../reviews.js";
 import type * as security from "../security.js";
 import type * as settings from "../settings.js";
 import type * as storage from "../storage.js";
 import type * as test_crud from "../test_crud.js";
+import type * as testimonials from "../testimonials.js";
 import type * as users from "../users.js";
 
 import type {
@@ -37,7 +39,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  about: typeof about;
+  about_page: typeof about_page;
   admin: typeof admin;
   auth: typeof auth;
   "auth/emailOtp": typeof auth_emailOtp;
@@ -52,11 +54,13 @@ declare const fullApi: ApiFromModules<{
   offers: typeof offers;
   orders: typeof orders;
   products: typeof products;
+  products_extras: typeof products_extras;
   reviews: typeof reviews;
   security: typeof security;
   settings: typeof settings;
   storage: typeof storage;
   test_crud: typeof test_crud;
+  testimonials: typeof testimonials;
   users: typeof users;
 }>;
 

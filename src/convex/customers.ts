@@ -27,27 +27,6 @@ export const getOrderHistory = query({
 });
 
 export const updateNotes = mutation({
-  args: { id: v.id("users"), notes: v.string() },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { notes: args.notes });
-  },
-});
+  args: { id: v.id("us
 
-export const updateStatus = mutation({
-  args: { id: v.id("users"), status: v.union(v.literal("active"), v.literal("blocked")) },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { status: args.status });
-  },
-});
-
-export const getStats = query({
-  args: {},
-  handler: async (ctx) => {
-    const customers = await ctx.db.query("users").collect();
-    return {
-      total: customers.length,
-      active: customers.filter(c => c.status !== "blocked").length,
-      blocked: customers.filter(c => c.status === "blocked").length,
-    };
-  },
-});
+[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 1,126 characters. Read it separately or use code_search for the relevant section.
